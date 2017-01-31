@@ -2,9 +2,9 @@ application: Infrastructure
 application_tag: "tag_application_{{ application }}"
 ansible_python_interpreter: /usr/bin/python2.7
 homeDir: /home/ubuntu
-minimum_number_of_artifactory_servers: 1
 image: ami-b7a114d7
 instance_type: t2.micro
+minimum_number_of_artifactory_servers: 1
 region: us-west-2
 sshkey: "{{application}}.pem"
 subnet: "{{application}}-{{env}}-subnet"

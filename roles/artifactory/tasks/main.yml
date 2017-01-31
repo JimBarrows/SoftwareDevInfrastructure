@@ -25,8 +25,28 @@
   with_items:
     - jfrog-artifactory-oss
 
+- name: Copy default config
+  copy:
+    src: files/default
+    dest: /etc/opt/jfrog/artifactory
+
+- name: Copy server.xml
+  template:
+    src: templates/server.xml.j2
+    dest: /opt/jfrog/artifactory/tomcat/conf/server.xml
+
 - name: Setup as a service
   service:
     name: artifactory
-    state: started
+    enables: yes
+    state: restarted
+
+- name: Open the artifactory port on the firewall
+  lineinfile:
+    backup: yes
+    dest: /etc/iptables.rules
+    insertbefore: "^COMMIT"
+    line: "-A INPUT -p tcp --dport {{connector_port}} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT"
+    state: present
+  notify: restart iptables
 
