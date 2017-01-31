@@ -5,4 +5,11 @@
 - hosts: tag_server_type_artifactory:&tag_application_Infrastructure
   roles:
     - role: common
+    - role: williamyeh.oracle-java
     - role: artifactory
+  vars:
+    java_version: 8
+    java_download_from_oracle: true
+    java_remove_download: true
+    java_set_javahome: true
+    java_install_jce: true

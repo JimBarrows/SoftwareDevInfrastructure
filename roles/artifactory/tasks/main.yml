@@ -2,27 +2,3 @@
 
 #roles/artifactory/tasks/all
 
-
-
-- name: Add 3rd party repositories
-  apt_repository:
-    repo: "{{ item }}"
-    state: present
-  with_items:
-    - ppa:webupd8team/java
-
-- name: Install Packages
-  apt:
-    update_cache: yes
-
-- name: Install Packages
-  apt:
-    name: "{{ item }}"
-    state: present
-    with_items:
-      - default-jdk
-      - oracle-java8-installer
-
-- name: Configure Java version
-  alternatives:
-      name: java
