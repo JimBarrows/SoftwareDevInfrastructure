@@ -22,6 +22,7 @@
   apt:
     name: "{{ item }}"
     state: present
+    allow_unauthenticated: yes
   with_items:
     - jfrog-artifactory-oss
 
@@ -38,7 +39,7 @@
 - name: Setup as a service
   service:
     name: artifactory
-    enables: yes
+    enabled: yes
     state: restarted
 
 - name: Open the artifactory port on the firewall

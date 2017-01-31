@@ -2,24 +2,7 @@
 
 # roles/servers/tasks/main.yml
 
-- name: Create Artifactory Server
-  ec2:
-#    assign_public_ip: yes
-    key_name: "{{application}}"
-    count_tag:
-      - server_type: artifactory
-    exact_count: "{{ minimum_number_of_artifactory_servers }}"
-    zone: "{{ zone }}"
-    image: "{{ image }}"
-    instance_type: "{{instance_type}}"
-    region: "{{ region }}"
-    wait: yes
-    instance_tags:
-      Name: "{{application}}-artifactory"
-      application: "{{application}}"
-      server_type: artifactory
-      os: "xenial"
-  register: created_artifactory
+- include: java_repo.yml
 
 - name: Add all the new instances to host group
   add_host:
@@ -28,21 +11,18 @@
   with_items:
     - "{{ created_artifactory.instances }}"
 
-- name: Wait for SSH to come up on all the servers
-  wait_for:
-    host: "{{ item.public_dns_name }}"
-    port: 22
-    delay: 60
-    timeout: 320
-    state: started
-  with_items:
-    - "{{ created_artifactory.instances }}"
-
 - name: Refresh EC2 cache
   command: inventory/ec2.py --refresh-cache
-  when: "{{created_artifactory.instances | length }}"
 
 - name: Refresh in-memory EC2 cache
   meta: refresh_inventory
-  when: "{{created_artifactory.instances | length }}"
 
+#- name: Wait for SSH to come up on all the servers
+#  wait_for:
+#    host: "{{ item.public_dns_name }}"
+#    port: 22
+#    delay: 60
+#    timeout: 320
+#    state: started
+#  with_items:
+#    - "{{ created_artifactory.instances }}"

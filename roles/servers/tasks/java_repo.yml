@@ -1,0 +1,32 @@
+---
+
+# roles/servers/tasks/java_repo.yml
+
+- name: Create Artifactory Server
+  ec2:
+    key_name: "{{application}}"
+    count_tag:
+      - server_type: artifactory
+    exact_count: "{{ minimum_number_of_artifactory_servers }}"
+    zone: "{{ zone }}"
+    image: "{{ image }}"
+    instance_type: "{{instance_type}}"
+    region: "{{ region }}"
+    wait: yes
+    group_id: "{{ security_group }}"
+    instance_tags:
+      Name: "{{application}}-artifactory"
+      application: "{{application}}"
+      server_type: artifactory
+      os: "xenial"
+  register: created_artifactory
+
+- name: Add all the new instances to host group
+  add_host:
+    hostname: "{{ item.public_ip }}"
+    groupname: launched
+  with_items:
+    - "{{ created_artifactory.instances }}"
+
+
+
