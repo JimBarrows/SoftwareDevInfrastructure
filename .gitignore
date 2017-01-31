@@ -1,2 +1,6 @@
 # Created by .ignore support plugin (hsz.mobi)
 /.idea/
+/etc/*.pem
+/etc/github_id_rsa
+/etc/rootkey.csv
+*.retry

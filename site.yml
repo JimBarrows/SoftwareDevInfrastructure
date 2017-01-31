@@ -1,0 +1,7 @@
+---
+
+- include: servers.yml
+
+- include: xenial_fix.yml
+
+- include: artifactory.yml

@@ -1,0 +1,8 @@
+---
+
+# artifactory.yml
+
+- hosts: tag_server_type_artifactory:&tag_application_Infrastructure
+  roles:
+    - role: common
+    - role: artifactory

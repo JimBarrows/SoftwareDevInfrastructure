@@ -1,0 +1,8 @@
+---
+
+#servers.yml
+
+- hosts: localhost
+  become: false
+  roles:
+    - role: servers
