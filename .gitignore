@@ -4,3 +4,4 @@
 /etc/github_id_rsa
 /etc/rootkey.csv
 *.retry
+/etc/Infrastructure.pem
