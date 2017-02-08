@@ -1,0 +1,3 @@
+fstype: ext4
+dev_path: /dev/xvdf
+mount_point: /data

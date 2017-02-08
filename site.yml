@@ -4,4 +4,4 @@
 
 - include: xenial_fix.yml
 
-- include: artifactory.yml
+- include: artifact_repositories.yml

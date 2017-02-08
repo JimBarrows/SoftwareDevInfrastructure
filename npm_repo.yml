@@ -1,0 +1,10 @@
+---
+
+# npm_repo.yml
+
+- hosts: tag_server_type_npmrepo:&tag_application_Infrastructure
+  roles:
+    - role: common
+    - role: mounted_ebs_volume
+    - role: node_server
+    - role: sinopia

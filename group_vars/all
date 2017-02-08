@@ -5,6 +5,7 @@ homeDir: /home/ubuntu
 image: ami-b7a114d7
 instance_type: t2.micro
 minimum_number_of_artifactory_servers: 1
+minimum_number_of_npm_repo_servers: 1
 region: us-west-2
 sshkey: "{{application}}.pem"
 subnet: "{{application}}-{{env}}-subnet"

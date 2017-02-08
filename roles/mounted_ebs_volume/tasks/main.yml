@@ -1,0 +1,20 @@
+---
+
+# roles/mounted_ebs_volume/tasks/main.yml
+
+- name: Format the volume
+  filesystem:
+    fstype: "{{fstype}}"
+    dev: "{{dev_path}}"
+
+- name: Create the data directory
+  file:
+    path: "{{mount_point}}"
+    state: directory
+
+- name: Mount the ebs volume
+  mount:
+    name: "{{mount_point}}"
+    src: "{{dev_path}}"
+    state: mounted
+    fstype: "{{fstype}}"

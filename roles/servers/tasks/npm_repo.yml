@@ -1,13 +1,13 @@
 ---
 
-# roles/servers/tasks/java_repo.yml
+# roles/servers/tasks/npm_repo.yml
 
-- name: Create Artifactory Server
+- name: Create NPM Repository Server
   ec2:
     key_name: "{{ application }}"
     count_tag:
-      - server_type: artifactory
-    exact_count: "{{ minimum_number_of_artifactory_servers }}"
+      - server_type: npmrepo
+    exact_count: "{{ minimum_number_of_npm_repo_servers }}"
     zone: "{{ zone }}"
     image: "{{ image }}"
     instance_type: "{{ instance_type }}"
@@ -15,9 +15,9 @@
     wait: yes
     group_id: "{{ security_group }}"
     instance_tags:
-      Name: "{{application}}-artifactory"
-      application: "{{application}}"
-      server_type: artifactory
+      Name: "{{application}}-npm_repo"
+      application: "{{ application }}"
+      server_type: npmrepo
       os: "xenial"
   register: created
 
