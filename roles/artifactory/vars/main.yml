@@ -1,5 +1,0 @@
-server_port: 8015
-connector_port: 8080
-ajp_port: 8019
-appBase: webapps
-
