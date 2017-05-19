@@ -1,13 +1,13 @@
 ---
 
-# roles/servers/tasks/npm_repo.yml
+# roles/servers/tasks/docker.yml
 
-- name: Create NPM Repository Server
+- name: Create Docker Server
   ec2:
     key_name: "{{ application }}"
     count_tag:
-      - server_type: npmrepo
-    exact_count: "{{ minimum_number_of_npm_repo_servers }}"
+      - server_type: docker
+    exact_count: "{{ minimum_number_of_docker_servers }}"
     zone: "{{ zone }}"
     image: "{{ image }}"
     instance_type: "{{ instance_type }}"
@@ -15,9 +15,9 @@
     wait: yes
     group_id: "{{ security_group }}"
     instance_tags:
-      Name: "{{application}}-npm_repo"
-      application: "{{ application }}"
-      server_type: npmrepo
+      Name: "{{application}}-docker"
+      application: "{{application}}"
+      server_type: docker
       os: "xenial"
   register: created
 

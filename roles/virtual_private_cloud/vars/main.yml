@@ -1,0 +1,10 @@
+gateway_name: "{{env}}-gateway"
+image: ami-b7a114d7
+instance_type: t2.micro
+region: us-west-2
+security_group_name: "{{env}}-security-group"
+sshkey: "Infrastructure.pem"
+subnet: "{{env}}-subnet"
+vpc_cidr_block: 20.0.0.0/16
+vpc_name: "{{env}}-vpc"
+zone: us-west-2c

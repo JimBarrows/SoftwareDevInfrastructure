@@ -1,0 +1,41 @@
+---
+
+# roles/virtual_private_cloud/tasks/main.yml
+
+- name: Create VPC and subnets
+  ec2_vpc:
+    state: present
+    resource_tags:
+      Name: "{{ vpc_name }}"
+    region: "{{ region }}"
+    cidr_block: "{{vpc_cidr_block}}"
+    subnets:
+      - cidr: 20.0.0.0/16
+        resource_tags: {"Name":"{{ subnet }}"}
+        az: "{{zone}}"
+    route_tables:
+      - subnets:
+        - 20.0.0.0/16
+        routes:
+          - dest: 0.0.0.0/0
+            gw: igw
+    wait: yes
+    internet_gateway: yes
+  register: vpc
+
+- name: get igw
+  ec2_vpc_igw:
+    vpc_id: "{{ vpc.vpc_id }}"
+    region: "{{ region }}"
+    state: present
+  register: igw
+
+- name: Set the igw name
+  ec2_tag:
+    resource: "{{item}}"
+    state: present
+    region: "{{ region }}"
+    tags:
+      Name: "{{gateway_name}}"
+  with_items:
+    - "{{ igw.gateway_id }}"

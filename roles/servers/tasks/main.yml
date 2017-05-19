@@ -2,9 +2,7 @@
 
 # roles/servers/tasks/main.yml
 
-- include: java_repo.yml
-
-- include: npm_repo.yml
+- include: docker.yml
 
 - name: Refresh EC2 cache
   command: inventory/ec2.py --refresh-cache

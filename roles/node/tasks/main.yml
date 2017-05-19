@@ -1,6 +1,6 @@
 ---
 
-# roles/node_server/tasks/main.yml
+# roles/node/tasks/main.yml
 
 - name: Install packages for node and supporting packages
   apt:

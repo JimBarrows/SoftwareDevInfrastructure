@@ -1,7 +1,9 @@
 ---
 
+- include: aws.yml
+
 - include: servers.yml
 
 - include: xenial_fix.yml
 
-- include: artifact_repositories.yml
+- include: jenkins.yml
