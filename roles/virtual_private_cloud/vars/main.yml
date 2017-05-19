@@ -2,7 +2,9 @@ gateway_name: "{{env}}-gateway"
 image: ami-b7a114d7
 instance_type: t2.micro
 region: us-west-2
+routing_name: "{{env}}-routing"
 security_group_name: "{{env}}-security-group"
+subnet_name: "{{env}}-subnet"
 sshkey: "Infrastructure.pem"
 subnet: "{{env}}-subnet"
 vpc_cidr_block: 20.0.0.0/16
