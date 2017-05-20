@@ -12,30 +12,9 @@
       Name:            "{{ vpc_name }}"
   register:            vpc
 
-- debug:
-    msg: "VPC: {{vpc}}"
+- debug:               var=vpc
 
-- name:                setup subnet(s)
-  ec2_vpc_subnet:
-    state:             present
-    cidr:              "{{ vpc_cidr_block }}"
-    region:            "{{ region }}"
-    az:                "{{ zone }}"
-    vpc_id:            "{{ vpc.vpc.id }}"
-    tags:
-      Name:            "{{ subnet_name }}"
-  register:            subnets
-
-- name:                setup routing table
-  ec2_vpc_route_table:
-    state:             present
-    vpc_id:            "{{ vpc.vpc.id }}"
-    region:            "{{ region }}"    
-    tags:
-      Name:            "{{ routing_name }}"
-  register:            routing_tables
-
-- name:                get igw
+- name:                create igw
   ec2_vpc_igw:
     state:             present
     vpc_id:            "{{ vpc.vpc.id }}"
@@ -51,3 +30,34 @@
       Name:            "{{ gateway_name }}"
   with_items:
     - "{{ igw.gateway_id }}"
+
+- debug:               var=igw
+
+- name:                setup subnet(s)
+  ec2_vpc_subnet:
+    state:             present
+    cidr:              "{{ vpc_cidr_block }}"
+    region:            "{{ region }}"
+    az:                "{{ zone }}"
+    vpc_id:            "{{ vpc.vpc.id }}"
+    tags:
+      Name:            "{{ subnet_name }}"
+  register:            subnets
+
+- debug:               var=subnets
+
+- name:                setup routing table
+  ec2_vpc_route_table:
+    state:             present
+    vpc_id:            "{{ vpc.vpc.id }}"
+    region:            "{{ region }}"
+    subnets:
+      - "{{subnets.subnet.id}}"
+    routes:
+      - dest:          "0.0.0.0/0"
+        gateway_id:    "{{ igw.gateway_id }}"
+    tags:
+      Name:            "{{ routing_name }}"
+  register:            routing_tables
+
+- debug:               var=routing_tables

@@ -1,6 +1,0 @@
----
-
-# roles/common/handlers/main.yml
-
-- name: restart iptables
-  raw: iptables-restore --verbose < /etc/iptables.rules

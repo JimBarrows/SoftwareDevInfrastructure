@@ -7,5 +7,4 @@ instance_type: t2.micro
 minimum_number_of_docker_servers: 1
 region: us-west-2
 sshkey: "{{application}}.pem"
-subnet: "{{application}}-{{env}}-subnet"
 zone: us-west-2c
