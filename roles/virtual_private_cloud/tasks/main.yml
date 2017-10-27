@@ -2,62 +2,95 @@
 
 # roles/virtual_private_cloud/tasks/main.yml
 
-- name:                Create VPC and subnets
+- name:                      Create VPC
   ec2_vpc_net:
-    state:             present
-    name:              "{{ vpc_name }}"
-    cidr_block:        "{{ vpc_cidr_block }}"
-    region:            "{{ region }}"
+    state:                   present
+    name:                    "{{ vpc_name }}"
+    cidr_block:              "{{ vpc_cidr_block }}"
+    region:                  "{{ region }}"
     tags:
-      Name:            "{{ vpc_name }}"
-  register:            vpc
+      env:                   "{{ env }}"
+  register:                  vpc
 
-- debug:               var=vpc
+- debug:                     var=vpc
 
-- name:                create igw
+- name:                      Create IGW
   ec2_vpc_igw:
-    state:             present
-    vpc_id:            "{{ vpc.vpc.id }}"
-    region:            "{{ region }}"
-  register:            igw
-
-- name:                Set the igw name
-  ec2_tag:
-    resource:          "{{item}}"
-    state:             present
-    region:            "{{ region }}"
+    state:                   present
+    vpc_id:                  "{{ vpc.vpc.id }}"
+    region:                  "{{ region }}"
     tags:
-      Name:            "{{ gateway_name }}"
-  with_items:
-    - "{{ igw.gateway_id }}"
+      Name:                  "{{ igw_name }}"
+      env:                   "{{ env }}"
+  register:                  igw
 
-- debug:               var=igw
+- debug:                     var=igw
 
-- name:                setup subnet(s)
+- name:                      Create Subnet
   ec2_vpc_subnet:
-    state:             present
-    cidr:              "{{ vpc_cidr_block }}"
-    region:            "{{ region }}"
-    az:                "{{ zone }}"
-    vpc_id:            "{{ vpc.vpc.id }}"
+    state:                   present
+    cidr:                    "{{ vpc_cidr_block }}"
+    region:                  "{{ region }}"
+    az:                      "{{ zone }}"
+    vpc_id:                  "{{ vpc.vpc.id }}"
     tags:
-      Name:            "{{ subnet_name }}"
-  register:            subnets
+      Name:                  "{{ subnet_name }}"
+      env:                   "{{ env }}"
+  register:                  subnets
 
-- debug:               var=subnets
+- debug:                     var=subnets
 
-- name:                setup routing table
+- name:                      Figure out the default routing table id
+  ec2_vpc_route_table_facts:
+    region:                  "{{ region }}"
+    filters:
+      vpc-id:                "{{ vpc.vpc.id }}"
+  register:                  default_routing_table
+
+- debug:                     var=default_routing_table
+
+- name:                      Modify routing table
   ec2_vpc_route_table:
-    state:             present
-    vpc_id:            "{{ vpc.vpc.id }}"
-    region:            "{{ region }}"
+    state:                   present
+    lookup:                  "id"
+    route_table_id:          "{{ default_routing_table.route_tables.0.id}}"
+    vpc_id:                  "{{ vpc.vpc.id }}"
+    region:                  "{{ region }}"
     subnets:
       - "{{subnets.subnet.id}}"
     routes:
-      - dest:          "0.0.0.0/0"
-        gateway_id:    "{{ igw.gateway_id }}"
+      - dest:                "0.0.0.0/0"
+        gateway_id:          "{{ igw.gateway_id }}"
     tags:
-      Name:            "{{ routing_name }}"
-  register:            routing_tables
+      Name:                  "{{ routing_table_name }}"
+      env:                   "{{ env }}"
+  register:                  routing_tables
 
-- debug:               var=routing_tables
+- debug:                     var=routing_tables
+
+- name:                      Create security group
+  ec2_group:
+    state:                   present
+    name:                    "{{ security_group_name }}"
+    description:             "A Security group for the {{ env }} environment"
+    region:                  "{{ region }}"
+    rules:
+      - proto:               tcp
+        from_port:           22
+        to_port:             22
+        cidr_ip:             0.0.0.0/0
+      - proto:               tcp
+        from_port:           "80"
+        to_port:             "80"
+        cidr_ip:             0.0.0.0/0
+      - proto:               tcp
+        from_port:           "443"
+        to_port:             "443"
+        cidr_ip:             0.0.0.0/0
+    vpc_id:                  "{{ vpc.vpc.id }}"
+    tags:
+      Name:                  "{{ security_group_name }}"
+      env:                   "{{ env }}"
+  register:                  security_group
+
+- debug:                     var=security_group

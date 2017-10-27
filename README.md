@@ -12,3 +12,8 @@ ssh-add ./etc/YourPemFileHere
 
 ### Mac OSX setup
 export PYTHONPATH=`brew --prefix`/lib/python2.7/site-packages:$PYTHONPATH
+
+# Running the playbooks
+
+## Setting up AWS
+ansible-playbook aws.yml --extra-vars "env=ENV NAME GOES HERE"
