@@ -1,0 +1,12 @@
+---
+
+- name:           Update everything
+  apt:
+    update_cache: yes
+
+- name:           Install postrgres
+  apt:
+      name:       "{{ item }}"
+  with_items:
+    - postgresql
+    - postgresql-contrib
