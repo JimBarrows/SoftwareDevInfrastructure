@@ -2,6 +2,6 @@
 
 - include: aws.yml
 
-#- include: servers.yml
+- include: servers.yml
 
 #- include: xenial_fix.yml

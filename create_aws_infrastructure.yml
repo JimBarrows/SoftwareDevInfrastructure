@@ -1,0 +1,34 @@
+- hosts:                    localhost
+  become:                   false
+  vars:
+    image:                  "ami-b7a114d7"
+    instance_type:          "t2.micro"
+    region:                 "us-west-2"
+  tasks:
+
+    - name:                 vpc sub net facts
+      ec2_vpc_subnet_facts:
+        region:             "{{ region }}"
+      register:             default_keep_vpc
+
+    - debug:                var=default_keep_vpc
+
+    - name:                 Create main server ubuntu 16.04 Xenial instance(s)
+      ec2:
+        assign_public_ip:   yes
+        count_tag:
+          - server_type:    "main_server"
+        exact_count:        1
+        zone:               "{{ default_keep_vpc.subnets.0.availability_zone }}"
+        image:              "{{ image }}"
+        instance_type:      "{{ instance_type }}"
+        region:             "{{ region }}"
+        vpc_subnet_id:      "{{ default_keep_vpc.subnets.0.id}}"
+        wait:               yes
+        instance_tags:
+          Name:             "infrastructure-server"
+          server_type:      "main_server"
+          os:               "xenial"
+      register:             created_server
+
+    - debug:                var=created_server
