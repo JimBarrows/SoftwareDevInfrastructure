@@ -18,6 +18,7 @@
         assign_public_ip:   yes
         count_tag:
           - server_type:    "main_server"
+        key_name:           "Infrastructure"
         exact_count:        1
         zone:               "{{ default_keep_vpc.subnets.0.availability_zone }}"
         image:              "{{ image }}"
@@ -32,3 +33,40 @@
       register:             created_server
 
     - debug:                var=created_server
+
+    - name:                 Add all the new instances to host group
+      add_host:
+        hostname:           "{{ item.public_ip }}"
+        groupname:          launched
+      with_items:
+        - "{{ created_server.instances }}"
+
+    - name:                 Wait for SSH to come up on all the servers
+      wait_for:
+        host:               "{{ item.public_dns_name }}"
+        port:               22
+        delay:              60
+        timeout:            320
+        state:              started
+      with_items:
+          - "{{ created_server.instances }}"
+
+    - name:                 Refresh EC2 cache
+      command:              inventory/ec2.py --refresh-cache
+      when:                 "{{created_server.instances | length }}"
+
+    - name:                 Refresh in-memory EC2 cache
+      meta:                 refresh_inventory
+      when:                 "{{created_server.instances | length}}"
+
+#When either Ubuntu includes python 2.7, or ansible is updated to python 3, this section can go away.  Until then, we have
+#install python 2.7 the hard way :(
+- hosts:                    tag_os_xenial
+  gather_facts:             false
+  become:                   true
+  tasks:
+    - name:                 update everything
+      raw:                  apt-get update -qq && apt-get upgrade -qq
+
+    - name:                 install python 2
+      raw:                  apt-get install python2.7 -qq
