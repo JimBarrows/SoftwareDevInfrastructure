@@ -1,0 +1,48 @@
+---
+
+- name:            Install OS prerequisites
+  apt:
+      name:        "{{ item }}"
+  with_items:
+    - apache2
+    - libapache2-mod-passenger
+    - ruby
+
+- name:            Fetch the redmine package
+  get_url:
+    backup:        yes
+    checksum:      "{{ redmine_release_checksum }}"
+    url:           http://www.redmine.org/releases/redmine-{{ redmine_release }}.zip
+    dest:          "."
+
+- name:            Unpack the redmine package
+  unarchive:
+    dest:          "{{ redmine_location }}"
+    remote_src:    yes
+    src:           "./redmine-{{ redmine_release }}.zip"
+
+
+- name:            Create role in database
+  become:          true
+  become_user:     postgres
+  postgresql_user:
+    name:          "{{ redmine_database_username }}"
+    password:      "{{ redmine_database_password }}"
+    state:         present
+  sudo:            yes
+
+- name:            Create the database
+  become:          true
+  become_user:     postgres
+  postgresql_db:
+    name:          "{{ redmine_database_name }}"
+    encoding:      UTF-8
+    owner:         "{{ redmine_database_username }}"
+    state:         present
+  sudo:            yes
+
+- name:            Database connection configuration
+  template:
+    src:           templates/database_yml
+    backup:        yes
+    dest:          "{{ redmine_location }}/redmine-{{ redmine_release }}/config/database.yml"

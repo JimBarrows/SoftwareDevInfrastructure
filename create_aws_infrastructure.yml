@@ -73,3 +73,15 @@
 
     - name:                 install python 2
       raw:                  apt-get install python2.7 -qq
+
+    - name:                 Install common packages
+      apt:
+        name:               "{{ item }}"
+      with_items:
+        - python-pip
+
+    - name:                 Install python prerequisites
+      pip:
+        name:               "{{ item }}"
+      with_items:
+        - psycopg2
