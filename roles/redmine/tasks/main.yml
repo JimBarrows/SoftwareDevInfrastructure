@@ -10,7 +10,13 @@
     - apache2
     - libapache2-mod-passenger
     - imagemagick
-    - libmagickwand-dev 
+
+
+- name:            Set Rails ENV to production
+  become:          yes
+  lineinfile:
+    path:          /etc/profile
+    line:          export RAILS_ENV=production
 
 - name:            Step 1 - Fetch the redmine package
   get_url:
@@ -68,4 +74,12 @@
     chdir:         "{{ redmine_location }}/redmine-{{ redmine_release }}"
     state:         present
 
-# - name:          Step 5 - Session store secret generation
+- name:            Step 5 - Session store secret generation
+  shell:           $HOME/.gem/ruby/2.4.0/bin/bundle exec $HOME/.rbenv/shims/rake generate_secret_token
+  args:
+    chdir:         "{{ redmine_location }}/redmine-{{ redmine_release }}"
+
+- name:            Step 6 - Database schema objects creation
+  shell:           RAILS_ENV=production $HOME/.gem/ruby/2.4.0/bin/bundle exec $HOME/.rbenv/shims/rake db:migrate
+  args:
+    chdir:         "{{ redmine_location }}/redmine-{{ redmine_release }}"
