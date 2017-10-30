@@ -1,26 +1,30 @@
 ---
 
 - name:           Update everything
+  become:         true
   apt:
     update_cache: yes
 
 - name:           Install postrgres
+  become:         true
   apt:
       name:       "{{ item }}"
   with_items:
     - postgresql
     - postgresql-contrib
 
-- name:  Change pg_hba.conf
+- name:           Change pg_hba.conf
+  become:         true
   copy:
-    src:           templates/pg_hba.conf
-    backup:        yes
-    dest:          /etc/postgresql/9.5/main/pg_hba.conf
-    group: postgres
-    owner: postgres
-    mode: 0640
+    src:          templates/pg_hba.conf
+    backup:       yes
+    dest:         /etc/postgresql/9.5/main/pg_hba.conf
+    group:        postgres
+    owner:        postgres
+    mode:         0640
 
-- name: Restart postgres database
+- name:           Restart postgres database
+  become:         true
   service:
-    name: postgresql
-    state: restarted
+    name:         postgresql
+    state:        restarted

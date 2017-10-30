@@ -1,14 +1,16 @@
 ---
 
+# these steps are followed from : http://www.redmine.org/projects/redmine/wiki/RedmineInstall
+
 - name:            Install OS prerequisites
+  become:          true
   apt:
       name:        "{{ item }}"
   with_items:
     - apache2
     - libapache2-mod-passenger
-    - ruby
 
-- name:            Fetch the redmine package
+- name:            Step 1 - Fetch the redmine package
   get_url:
     backup:        yes
     checksum:      "{{ redmine_release_checksum }}"
@@ -16,22 +18,22 @@
     dest:          "."
 
 - name:            Unpack the redmine package
+  become:          true
   unarchive:
     dest:          "{{ redmine_location }}"
     remote_src:    yes
     src:           "./redmine-{{ redmine_release }}.zip"
 
 
-- name:            Create role in database
+- name:            Step 2a - Create role in database
   become:          true
   become_user:     postgres
   postgresql_user:
     name:          "{{ redmine_database_username }}"
     password:      "{{ redmine_database_password }}"
     state:         present
-  sudo:            yes
 
-- name:            Create the database
+- name:            Step 2b - Create the database
   become:          true
   become_user:     postgres
   postgresql_db:
@@ -39,10 +41,25 @@
     encoding:      UTF-8
     owner:         "{{ redmine_database_username }}"
     state:         present
-  sudo:            yes
 
-- name:            Database connection configuration
+- name:            Step 3 - Database connection configuration
+  become:          true
   template:
     src:           templates/database_yml
     backup:        yes
     dest:          "{{ redmine_location }}/redmine-{{ redmine_release }}/config/database.yml"
+
+- name:            Step 4a - Dependencies installations
+  gem:
+    executable:    /usr/bin/gem
+    name:          "{{ item }}"
+    state:         present
+  with_items:
+    - pg
+
+- name:            Step 4b - Dependencies installations
+  bundler:
+    chdir:         "{{ redmine_location }}/redmine-{{ redmine_release }}"
+    state:         present
+
+# - name:          Step 5 - Session store secret generation
