@@ -91,6 +91,6 @@
     chdir:         "{{ redmine_location }}/redmine-{{ redmine_release }}"
 
 - name: Step 7 - Database default data set
-  shell:           RAILS_ENV=production bundle exec rake redmine:load_default_data
+  shell:           RAILS_ENV=production REDMINE_LANG=en $HOME/.gem/ruby/2.4.0/bin/bundle exec $HOME/.rbenv/shims/rake redmine:load_default_data
   args:
     chdir:         "{{ redmine_location }}/redmine-{{ redmine_release }}"
