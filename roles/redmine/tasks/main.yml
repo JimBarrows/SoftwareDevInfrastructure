@@ -18,6 +18,12 @@
     path:          /etc/profile
     line:          export RAILS_ENV=production
 
+- name:            Set REDMINE_LANG to english
+  become:          yes
+  lineinfile:
+    path:          /etc/profile
+    line:          export REDMINE_LANG=en
+
 - name:            Step 1 - Fetch the redmine package
   get_url:
     backup:        yes
@@ -81,5 +87,10 @@
 
 - name:            Step 6 - Database schema objects creation
   shell:           RAILS_ENV=production $HOME/.gem/ruby/2.4.0/bin/bundle exec $HOME/.rbenv/shims/rake db:migrate
+  args:
+    chdir:         "{{ redmine_location }}/redmine-{{ redmine_release }}"
+
+- name: Step 7 - Database default data set
+  shell:           RAILS_ENV=production bundle exec rake redmine:load_default_data
   args:
     chdir:         "{{ redmine_location }}/redmine-{{ redmine_release }}"
