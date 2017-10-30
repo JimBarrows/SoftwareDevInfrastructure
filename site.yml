@@ -2,6 +2,6 @@
 
 - hosts: tag_server_type_main_server
   roles:
-    # - role: database
+    - role: database
     - role: ruby
-    # - role: redmine
+    - role: redmine

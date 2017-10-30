@@ -12,6 +12,8 @@
   with_items:
     - postgresql
     - postgresql-contrib
+    - postgresql-common
+    - libpq-dev
 
 - name:           Change pg_hba.conf
   become:         true

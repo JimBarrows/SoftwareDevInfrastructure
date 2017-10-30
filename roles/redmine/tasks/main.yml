@@ -9,6 +9,8 @@
   with_items:
     - apache2
     - libapache2-mod-passenger
+    - imagemagick
+    - libmagickwand-dev 
 
 - name:            Step 1 - Fetch the redmine package
   get_url:
@@ -23,6 +25,8 @@
     dest:          "{{ redmine_location }}"
     remote_src:    yes
     src:           "./redmine-{{ redmine_release }}.zip"
+    group:         ubuntu
+    owner:         ubuntu
 
 
 - name:            Step 2a - Create role in database
@@ -51,7 +55,7 @@
 
 - name:            Step 4a - Dependencies installations
   gem:
-    executable:    /usr/bin/gem
+    executable:    /home/ubuntu/.rbenv/shims/gem
     name:          "{{ item }}"
     state:         present
   with_items:
@@ -59,6 +63,8 @@
 
 - name:            Step 4b - Dependencies installations
   bundler:
+    executable:    /home/ubuntu/.gem/ruby/2.4.0/bin/bundle
+    extra_args:    --without development test
     chdir:         "{{ redmine_location }}/redmine-{{ redmine_release }}"
     state:         present
 
