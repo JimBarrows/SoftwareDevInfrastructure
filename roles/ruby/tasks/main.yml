@@ -1,0 +1,85 @@
+---
+
+- name:           Update everything
+  become:         true
+  apt:
+    update_cache: yes
+
+- name:           Prepare to install ruby
+  become:         true
+  apt:
+    name:         "{{ item }}"
+    state:        present
+  with_items:
+    - git-core
+    - curl
+    - zlib1g-dev
+    - build-essential
+    - libssl-dev
+    - libreadline-dev
+    - libyaml-dev
+    - libsqlite3-dev
+    - sqlite3
+    - libxml2-dev
+    - libxslt1-dev
+    - libcurl4-openssl-dev
+    - python-software-properties
+    - libffi-dev
+    - nodejs
+
+- name:           Clone rebenv from git
+  git:
+    repo:         https://github.com/rbenv/rbenv.git
+    dest:         ~/.rbenv
+
+- name:           Update path for rebenv
+  lineinfile:
+    path:         .bashrc
+    line:         export PATH="$HOME/.rbenv/bin:$PATH"
+
+- name:           Update bashrc for rebenv
+  lineinfile:
+    path:         .bashrc
+    line:         eval "$(rbenv init -)"
+
+- name:           Clone ruby-build from git
+  git:
+    repo:         https://github.com/rbenv/ruby-build.git
+    dest:         .rbenv/plugins/ruby-build
+
+- name:           Update path for ruby-build
+  lineinfile:
+    path:         .bashrc
+    line:         export PATH="$HOME/.rbenv/plugins/ruby-build/bin:$PATH"
+
+- name:           Update shell
+  shell:          exec $SHELL
+
+- stat:
+    path:         /home/ubuntu/.rbenv/versions/2.4.2
+  register:       rbenv_2_4_2
+
+- name:           build installations
+  shell:          /home/ubuntu/.rbenv/bin/rbenv install 2.4.2
+  when:           rbenv_2_4_2.stat.exists == false
+
+- name:           global
+  shell:          /home/ubuntu/.rbenv/bin/rbenv global 2.4.2
+
+- name:           Dependencies installations
+  gem:
+    executable:   /home/ubuntu/.rbenv/shims/gem
+    name:         "{{ item }}"
+    state:        present
+  with_items:
+    - rails
+    - bundler
+
+- name:           Update path for ruby and rails
+  lineinfile:
+    path:         .bashrc
+    line:         export PATH="$HOME/.gem/ruby/2.4.0/bin:$PATH"
+
+
+- name:           Rehash rebenv
+  shell:          /home/ubuntu/.rbenv/bin/rbenv rehash

@@ -1,7 +1,7 @@
 ---
 
-- include: aws.yml
-
-#- include: servers.yml
-
-#- include: xenial_fix.yml
+- hosts: tag_server_type_main_server
+  roles:
+    - role: database
+    - role: ruby
+    - role: redmine
