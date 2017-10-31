@@ -1,7 +1,8 @@
-redmine_location: /usr/local
+redmine_root: /usr/local
 redmine_database_name: redmine
 redmine_database_host: localhost
 redmine_database_username: redmine_user
 redmine_database_password: "Animal-Afford-Enough-Accord-2"
 redmine_release: 3.4.3
 redmine_release_checksum: md5:9264798cae6a686d8687fdfd025db8be
+redmine_location: /usr/local/redmine-3.4.3

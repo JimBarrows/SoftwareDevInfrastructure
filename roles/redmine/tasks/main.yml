@@ -34,7 +34,7 @@
 - name:            Unpack the redmine package
   become:          true
   unarchive:
-    dest:          "{{ redmine_location }}"
+    dest:          "{{ redmine_root }}"
     remote_src:    yes
     src:           "./redmine-{{ redmine_release }}.zip"
     group:         ubuntu
@@ -63,7 +63,7 @@
   template:
     src:           templates/database_yml
     backup:        yes
-    dest:          "{{ redmine_location }}/redmine-{{ redmine_release }}/config/database.yml"
+    dest:          "{{ redmine_root }}/redmine-{{ redmine_release }}/config/database.yml"
 
 - name:            Step 4a - Dependencies installations
   gem:
@@ -77,20 +77,55 @@
   bundler:
     executable:    /home/ubuntu/.gem/ruby/2.4.0/bin/bundle
     extra_args:    --without development test
-    chdir:         "{{ redmine_location }}/redmine-{{ redmine_release }}"
+    chdir:         "{{ redmine_location }}"
     state:         present
 
 - name:            Step 5 - Session store secret generation
   shell:           $HOME/.gem/ruby/2.4.0/bin/bundle exec $HOME/.rbenv/shims/rake generate_secret_token
   args:
-    chdir:         "{{ redmine_location }}/redmine-{{ redmine_release }}"
+    chdir:         "{{ redmine_location }}"
 
 - name:            Step 6 - Database schema objects creation
   shell:           RAILS_ENV=production $HOME/.gem/ruby/2.4.0/bin/bundle exec $HOME/.rbenv/shims/rake db:migrate
   args:
-    chdir:         "{{ redmine_location }}/redmine-{{ redmine_release }}"
+    chdir:         "{{ redmine_location }}"
 
-- name: Step 7 - Database default data set
+- name:            Step 7 - Database default data set
   shell:           RAILS_ENV=production REDMINE_LANG=en $HOME/.gem/ruby/2.4.0/bin/bundle exec $HOME/.rbenv/shims/rake redmine:load_default_data
   args:
-    chdir:         "{{ redmine_location }}/redmine-{{ redmine_release }}"
+    chdir:         "{{ redmine_location }}"
+
+- name:            Step 8a - File System permissions - create redmine group
+  become:          true
+  group:
+    name:          redmine
+    state:         present
+
+- name:            Step 8a1 - File system permissions - create redmine user
+  become:          true
+  user:
+    name:          redmine
+    # group:         redmine
+    home:          "{{ redmine_location }}"
+    shell:         /bin/false
+    state:         present
+
+- name:            Step 8b - File System permissions - change owner/group
+  become:          true
+  file:
+    path:          "{{ redmine_location }}"
+    owner:         redmine
+    # group:         redmine
+    recurse:       yes
+
+- name:            Step 8c - File System permissions - mk tmp files
+  become:          true
+  file:
+    path:          "{{ item }}"
+    owner:         redmine
+    group:         redmine
+    recurse:       yes
+    state:         directory
+  with_items:
+    - "{{ redmine_location }}/tmp/pdf"
+    - "{{ redmine_location }}/public/plugin_assets"
